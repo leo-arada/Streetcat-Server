@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  foundCats: [{
+  cats: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Cat',
   }],

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const catSchema = new mongoose.Schema({
   name: {
-    type: string,
+    type: String,
     required: true,
   },
   accessibility: {
@@ -13,23 +13,20 @@ const catSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  likes: {
+  likes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-  },
+  }],
   founder: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
   comments:[{
-    types: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Comment',
   }],
-  location: {
-    type: String,
-    required: true,
-  },
+  location: [],
   image: {
     type: String,
     required: true,

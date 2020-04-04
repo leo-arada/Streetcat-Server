@@ -4,8 +4,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const authRouter = require('./routes/auth');
-const usersRouter = require('./routes/users');
-
+const usersRouter = require('./routes/user');
+const catRouter = require('./routes/cats');
 
 mongoose.connect(
   process.env.DB_URI, 
@@ -31,8 +31,8 @@ app.use(
 
 
 app.use('/auth', authRouter);
-app.use('/users', usersRouter);
-
+app.use('/user', usersRouter);
+app.use('/cat', catRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
