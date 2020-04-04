@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const authRouter = require('./routes/auth');
 const usersRouter = require('./routes/user');
-const catRouter = require('./routes/cats');
+const catRouter = require('./routes/cat');
 
 mongoose.connect(
   process.env.DB_URI, 

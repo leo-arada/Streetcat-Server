@@ -13,3 +13,8 @@ exports.registerCat = async (req, res, next) => {
   await user.cats.push(newCat._id)
   user.save();
 };
+
+exports.getHandler = (req, res, next) => {
+  res.json({ result: 'loggedIn'});
+  console.log(11111111111111111111111111111111111111111);
+};
