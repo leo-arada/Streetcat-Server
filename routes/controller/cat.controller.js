@@ -3,7 +3,6 @@ const Cat = require('../../models/Cat');
 
 exports.registerCat = async (req, res, next) => {
   const { cat, id } = req.body;
-
   res.json({ result: 'ok' });
   const user = await User.findOne({ facebookId: id });
   const newCat = await new Cat({
@@ -16,5 +15,4 @@ exports.registerCat = async (req, res, next) => {
 
 exports.getHandler = (req, res, next) => {
   res.json({ result: 'loggedIn'});
-  console.log(11111111111111111111111111111111111111111);
 };

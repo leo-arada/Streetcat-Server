@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../../models/User');
 
 exports.verifyToken = async (req, res, next) => {
-  console.log('token verify')
   let token = req.headers['authorization'];
   console.log(token, '111111');
   token = token.startsWith('Bearer') ? token.slice(7, token.length) : null;
