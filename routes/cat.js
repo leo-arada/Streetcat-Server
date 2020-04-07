@@ -3,7 +3,7 @@ const catController = require('./controller/cat.controller');
 const router = express.Router();
 const { verifyToken } = require('./middlewares/authentication');
 
-router.get('/', verifyToken, catController.getHandler)
+router.get('/', verifyToken, catController.getHandler);
 router.post('/', catController.registerCat);
-
+router.post('/uploadImages', verifyToken, catController.uploadAndSaveImages);
 module.exports = router;

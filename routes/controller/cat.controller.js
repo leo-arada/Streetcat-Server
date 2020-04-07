@@ -16,3 +16,6 @@ exports.registerCat = async (req, res, next) => {
 exports.getHandler = (req, res, next) => {
   res.json({ result: 'loggedIn'});
 };
+
+exports.uploadAndSaveImages = async (req, res, next) => {
+};
