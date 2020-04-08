@@ -7,7 +7,9 @@ exports.logIn = async (req, res, next) => {
   const cats = await Cat.find({});
   let user = await User.findOne({ facebookId });
   user = user || await new User({ facebookId, name }).save();
-  const token = jwt.sign({ facebookId, name }, process.env.JWT_KEY, { expiresIn: '3d' });
+  const token = jwt.sign({ facebookId, name }, process.env.JWT_KEY, { 
+    expiresIn: '3d' 
+  });
   res.json({ 
     message: 'ok', 
     user: {

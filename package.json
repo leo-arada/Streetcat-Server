@@ -7,11 +7,19 @@
     "server": "nodemon app.js"
   },
   "dependencies": {
+    "aws-sdk": "^2.654.0",
+    "body-parser": "^1.19.0",
+    "busboy": "^0.3.1",
+    "busboy-body-parser": "^0.3.2",
+    "connect-busboy": "0.0.2",
     "express": "~4.16.1",
+    "express-fileupload": "^1.1.7-alpha.2",
     "express-session": "^1.17.0",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.7"
+    "mongoose": "^5.9.7",
+    "multer": "^1.4.2",
+    "multer-s3": "^2.9.0"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
