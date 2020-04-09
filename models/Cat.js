@@ -33,6 +33,10 @@ const catSchema = new mongoose.Schema({
   },
   time: {
     type: String,
+  },
+  description: {
+    type: String,
+    default: '',
   }
 });
 

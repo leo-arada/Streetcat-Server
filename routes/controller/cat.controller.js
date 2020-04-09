@@ -19,6 +19,16 @@ exports.getHandler = (req, res, next) => {
   res.json({ result: 'loggedIn'});
 };
 
+exports.increaseLike = async (req, res, next) => {
+  const { id, catId } = req.body;
+  const cat = await Cat.findById({ _id: catId });
+  const didUserLike = cat.likes.some((objId) => objId.toString() === id);
+  if (didUserLike) return res.json({ message: 'User already liked it'});
+  cat.likes.push(id);
+  await cat.save();
+  res.json({ result: 'ok', cat });
+};
+
 exports.saveCatData = async (req, res, next) => {
   const { 
     accessibility, 
@@ -64,9 +74,9 @@ exports.saveCatData = async (req, res, next) => {
 
     const image = data.Location;
     cat.image = image;
-    const catsAndUser = await savePhoto(cat);
-    const [cats, user] = catsAndUser;
-
+    const catAndUser = await savePhoto(cat);
+    const [newCat, user] = catAndUser;
+ 
     res.json({ 
       message: 'ok', 
       user: {
@@ -75,7 +85,20 @@ exports.saveCatData = async (req, res, next) => {
         cats: user.cats,
         mongoId: user.id,
       },
-      cats,
+      cat: newCat,
     });
   });
+};
+
+exports.updateCatdata = async (req, res, next) => {
+  const { cat_id } = req.params;
+  const cat = await Cat.findByIdAndUpdate({ _id:cat_id }, (req.body), { new: true });
+
+  res.json({ 
+    message: 'ok', 
+    cat,
+  });
+};
+
+exports.deleteCata = async (req, res, next) => {
 };
