@@ -22,7 +22,7 @@ exports.registerCat = async (req, res, next) => {
 };
 
 exports.getHandler = (req, res, next) => {
-  res.json({ result: 'loggedIn'});
+  res.json({ result: 'ok' });
 };
 
 exports.increaseLike = async (req, res, next) => {
@@ -30,7 +30,6 @@ exports.increaseLike = async (req, res, next) => {
   const cat = await Cat.findById({ _id: catId });
   const didUserLike = cat.likes.some((objId) => objId.toString() === id);
   if (didUserLike) return res.json({ message: 'User already liked it'});
-  console.log('좋아요처음할때');
   cat.likes.push(id);
   await cat.save();
   res.json({ result: 'ok', cat });
@@ -78,7 +77,7 @@ exports.saveCatData = async (req, res, next) => {
     cat.image = image;
     const catAndUser = await savePhoto(cat);
     const [newCat, user] = catAndUser;
- 
+    
     res.json({ 
       message: 'ok', 
       user: {
@@ -116,5 +115,5 @@ exports.deleteCata = async (req, res, next) => {
   const user = await User.findById({ _id: founder });
   const newCat = user.cats.filter((cat) => cat.toString() !== _id);
   await User.findByIdAndUpdate({ _id: founder }, { cats: newCat }, { new: true });
-  res.json({ result: 'ok', cat });
+  res.json({ result: 'ok', cats: newCat, cat });
 };
