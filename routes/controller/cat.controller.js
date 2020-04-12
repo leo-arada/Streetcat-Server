@@ -1,5 +1,6 @@
 const User = require('../../models/User');
 const Cat = require('../../models/Cat');
+const Comment = require('../../models/Comment');
 const { savePhoto } = require('../../lib/savePhoto');
 var AWS = require('aws-sdk');
 
@@ -29,7 +30,7 @@ exports.increaseLike = async (req, res, next) => {
   const { id, catId } = req.body;
   const cat = await Cat.findById({ _id: catId });
   const didUserLike = cat.likes.some((objId) => objId.toString() === id);
-  if (didUserLike) return res.json({ message: 'User already liked it'});
+  if (didUserLike) return res.json({ message: 'User already liked it' });
   cat.likes.push(id);
   await cat.save();
   res.json({ result: 'ok', cat });
@@ -93,27 +94,69 @@ exports.saveCatData = async (req, res, next) => {
 
 exports.updateCatdata = async (req, res, next) => {
   const { cat_id } = req.params;
-  const cat = await Cat.findByIdAndUpdate({ _id:cat_id }, (req.body), { new: true });
+  const cat = await Cat.findByIdAndUpdate(
+    { _id:cat_id }, 
+    req.body, 
+    { new: true }
+  );
   res.json({ 
     message: 'ok', 
     cat,
   });
 };
 
-exports.deleteCata = async (req, res, next) => {
+exports.deleteCat = async (req, res, next) => {
   const { _id, founder } = req.body;
   const cat = await Cat.findByIdAndDelete({ _id });
 
-  s3.deleteObject({
-    Bucket: process.env.BUCKET_NAME,
-    Key: `photos/${cat.name}-${cat.time}`,
-  }, (err, data) => {
-    if (err) console.log(err);
-    else console.log(data);
+  s3.deleteObject(
+    {
+      Bucket: process.env.BUCKET_NAME,
+      Key: `photos/${cat.name}-${cat.time}`,
+    }, 
+    (err, data) => {
+      if (err) console.log(err);
+      else console.log(data);
   });
 
   const user = await User.findById({ _id: founder });
   const newCat = user.cats.filter((cat) => cat.toString() !== _id);
-  await User.findByIdAndUpdate({ _id: founder }, { cats: newCat }, { new: true });
+  await User.findByIdAndUpdate(
+    { _id: founder }, 
+    { cats: newCat }, 
+    { new: true }
+  );
   res.json({ result: 'ok', cats: newCat, cat });
+};
+
+exports.findComments = async (req, res, next) => {
+  const { cat_id } = req.params;
+  const { comments } = await Cat.findById({ _id: cat_id }).populate('comments');
+  res.json({ result: 'ok', comments });
+};
+
+exports.addComment = async (req, res, next) => {
+  const { content, writerId, writerName, id } = req.body;
+  const comment = await new Comment({ content, writerId, writerName }).save();
+  const cat = await Cat.findById(id);
+  cat.comments.push(comment._id);
+  await cat.save();
+  res.json({ result: 'ok', comment });
+};
+
+exports.deleteComment = async (req, res, next) => {
+  const { catId, commentId } = req.body;
+  const cat = await Cat.findById({ _id: catId});
+  const newComments = cat.comments.filter(
+    (objId) => objId.toString() !== commentId
+  );
+
+  const newCat = await Cat.findByIdAndUpdate(
+    { _id: catId}, 
+    { comments: newComments}, 
+    { new: true}
+  );
+  
+  await Comment.findByIdAndDelete({ _id: commentId});
+  res.json({ result: 'ok', newCat, comment: commentId });
 };
