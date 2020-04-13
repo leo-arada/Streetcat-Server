@@ -40,10 +40,9 @@ app.use(function(req, res, next) {
 });
 
 app.use(function(err, req, res, next) {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
   res.status(err.status || 500);
-  res.render('error');
+  console.log('에러마지막', err.status)
+  res.json({ result : 'error' });
 });
 
 app.listen(process.env.PORT || 3000, () => {

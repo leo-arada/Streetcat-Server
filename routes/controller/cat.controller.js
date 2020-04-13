@@ -1,8 +1,9 @@
-const User = require('../../models/User');
+const AWS = require('aws-sdk');
+const createError = require('http-errors');
 const Cat = require('../../models/Cat');
 const Comment = require('../../models/Comment');
+const User = require('../../models/User');
 const { savePhoto } = require('../../lib/savePhoto');
-var AWS = require('aws-sdk');
 
 const s3 = new AWS.S3({
   secretAccessKey: process.env.SECRET_ACCESS_KEY,
@@ -11,15 +12,20 @@ const s3 = new AWS.S3({
 });
 
 exports.registerCat = async (req, res, next) => {
-  const { cat, id } = req.body;
-  res.json({ result: 'ok' });
-  const user = await User.findOne({ id });
-  const newCat = await new Cat({
-    ...cat,
-    founder: user._id,
-  }).save();
-  await user.cats.push(newCat._id)
-  user.save();
+  try {
+    const { cat, id } = req.body;
+    res.json({ result: 'ok' });
+    const user = await User.findOne({ id });
+    const newCat = await new Cat({
+      ...cat,
+      founder: user._id,
+    }).save();
+    await user.cats.push(newCat._id)
+    user.save();
+  } catch (error) {
+    next(createError(500));
+  }
+  
 };
 
 exports.getHandler = (req, res, next) => {
@@ -27,13 +33,17 @@ exports.getHandler = (req, res, next) => {
 };
 
 exports.increaseLike = async (req, res, next) => {
-  const { id, catId } = req.body;
-  const cat = await Cat.findById({ _id: catId });
-  const didUserLike = cat.likes.some((objId) => objId.toString() === id);
-  if (didUserLike) return res.json({ message: 'User already liked it' });
-  cat.likes.push(id);
-  await cat.save();
-  res.json({ result: 'ok', cat });
+  try {
+    const { id, catId } = req.body;
+    const cat = await Cat.findById({ _id: catId });
+    const didUserLike = cat.likes.some((objId) => objId.toString() === id);
+    if (didUserLike) return res.json({ result: 'already done' });
+    cat.likes.push(id);
+    await cat.save();
+    res.json({ result: 'ok', cat });
+  } catch (error) {
+    next(createError(500));
+  }
 };
 
 exports.saveCatData = async (req, res, next) => {
@@ -71,7 +81,7 @@ exports.saveCatData = async (req, res, next) => {
 
   s3.upload(params, async (err, data) => {
     if (err) {
-      console.log('error');
+      next(createError(500));
     }
 
     const image = data.Location;
@@ -93,70 +103,90 @@ exports.saveCatData = async (req, res, next) => {
 };
 
 exports.updateCatdata = async (req, res, next) => {
-  const { cat_id } = req.params;
-  const cat = await Cat.findByIdAndUpdate(
-    { _id:cat_id }, 
-    req.body, 
-    { new: true }
-  );
-  res.json({ 
-    message: 'ok', 
-    cat,
-  });
+  try {
+    const { cat_id } = req.params;
+    const cat = await Cat.findByIdAndUpdate(
+      { _id:cat_id }, 
+      req.body, 
+      { new: true }
+    );
+    res.json({ 
+      message: 'ok', 
+      cat,
+    });
+  } catch (error) {
+    next(createError(500));
+  }
 };
 
 exports.deleteCat = async (req, res, next) => {
-  const { _id, founder } = req.body;
-  const cat = await Cat.findByIdAndDelete({ _id });
+  try {
+    const { _id, founder } = req.body;
+    const cat = await Cat.findByIdAndDelete({ _id });
 
-  s3.deleteObject(
-    {
-      Bucket: process.env.BUCKET_NAME,
-      Key: `photos/${cat.name}-${cat.time}`,
-    }, 
-    (err, data) => {
-      if (err) console.log(err);
-      else console.log(data);
-  });
-
-  const user = await User.findById({ _id: founder });
-  const newCat = user.cats.filter((cat) => cat.toString() !== _id);
-  await User.findByIdAndUpdate(
-    { _id: founder }, 
-    { cats: newCat }, 
-    { new: true }
-  );
-  res.json({ result: 'ok', cats: newCat, cat });
+    s3.deleteObject(
+      {
+        Bucket: process.env.BUCKET_NAME,
+        Key: `photos/${cat.name}-${cat.time}`,
+      }, 
+      (err, data) => {
+        if (err) console.log(err);
+        else console.log(data);
+    });
+  
+    const user = await User.findById({ _id: founder });
+    const newCat = user.cats.filter((cat) => cat.toString() !== _id);
+    const ddd = await User.findByIdAndUpdate(
+      { _id: founder }, 
+      { cats: newCat }, 
+      { new: true }
+    );
+    res.json({ result: 'ok', cats: newCat, cat });
+  } catch (error) {
+    next(createError(500));
+  }
 };
 
 exports.findComments = async (req, res, next) => {
-  const { cat_id } = req.params;
-  const { comments } = await Cat.findById({ _id: cat_id }).populate('comments');
-  res.json({ result: 'ok', comments });
+  try {
+    const { cat_id } = req.params;
+    const { comments } = await Cat.findById({ _id: cat_id }).populate('comments');
+    res.json({ result: 'ok', comments });
+  } catch (error) {
+    next(createError(500));
+  }
 };
 
 exports.addComment = async (req, res, next) => {
-  const { content, writerId, writerName, id } = req.body;
-  const comment = await new Comment({ content, writerId, writerName }).save();
-  const cat = await Cat.findById(id);
-  cat.comments.push(comment._id);
-  await cat.save();
-  res.json({ result: 'ok', comment });
+  try {
+    const { content, writerId, writerName, id } = req.body;
+    const comment = await new Comment({ content, writerId, writerName }).save();
+    const cat = await Cat.findById(id);
+    cat.comments.push(comment._id);
+    await cat.save();
+    res.json({ result: 'ok', comment });
+  } catch (error) {
+    next(createError(500));
+  }
 };
 
 exports.deleteComment = async (req, res, next) => {
-  const { catId, commentId } = req.body;
-  const cat = await Cat.findById({ _id: catId});
-  const newComments = cat.comments.filter(
-    (objId) => objId.toString() !== commentId
-  );
+  try {
+    const { catId, commentId } = req.body;
+    const cat = await Cat.findById({ _id: catId});
+    const newComments = cat.comments.filter(
+      (objId) => objId.toString() !== commentId
+    );
 
-  const newCat = await Cat.findByIdAndUpdate(
-    { _id: catId}, 
-    { comments: newComments}, 
-    { new: true}
-  );
+    const newCat = await Cat.findByIdAndUpdate(
+      { _id: catId}, 
+      { comments: newComments}, 
+      { new: true}
+    );
   
-  await Comment.findByIdAndDelete({ _id: commentId});
-  res.json({ result: 'ok', newCat, comment: commentId });
+    await Comment.findByIdAndDelete({ _id: commentId});
+    res.json({ result: 'ok', newCat, comment: commentId });
+  } catch (error) {
+    next(createError(500));
+  }
 };
