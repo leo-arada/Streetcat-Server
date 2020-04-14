@@ -41,7 +41,6 @@ app.use(function(req, res, next) {
 
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
-  console.log('에러마지막', err.status)
   res.json({ result : 'error' });
 });
 

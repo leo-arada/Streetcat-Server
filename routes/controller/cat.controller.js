@@ -12,41 +12,6 @@ const s3 = new AWS.S3({
 });
 
 exports.registerCat = async (req, res, next) => {
-  try {
-    const { cat, id } = req.body;
-    res.json({ result: 'ok' });
-    const user = await User.findOne({ id });
-    const newCat = await new Cat({
-      ...cat,
-      founder: user._id,
-    }).save();
-    await user.cats.push(newCat._id)
-    user.save();
-  } catch (error) {
-    next(createError(500));
-  }
-  
-};
-
-exports.getHandler = (req, res, next) => {
-  res.json({ result: 'ok' });
-};
-
-exports.increaseLike = async (req, res, next) => {
-  try {
-    const { id, catId } = req.body;
-    const cat = await Cat.findById({ _id: catId });
-    const didUserLike = cat.likes.some((objId) => objId.toString() === id);
-    if (didUserLike) return res.json({ result: 'already done' });
-    cat.likes.push(id);
-    await cat.save();
-    res.json({ result: 'ok', cat });
-  } catch (error) {
-    next(createError(500));
-  }
-};
-
-exports.saveCatData = async (req, res, next) => {
   const { 
     accessibility, 
     description,
@@ -102,16 +67,35 @@ exports.saveCatData = async (req, res, next) => {
   });
 };
 
+exports.getHandler = (req, res, next) => {
+  res.json({ result: 'ok' });
+};
+
+exports.increaseLike = async (req, res, next) => {
+  try {
+    const { id, catId } = req.body;
+    const cat = await Cat.findById({ _id: catId });
+    const didUserLike = cat.likes.some((objId) => objId.toString() === id);
+    if (didUserLike) return res.json({ result: 'already done' });
+    cat.likes.push(id);
+    await cat.save();
+    res.json({ result: 'ok', cat });
+  } catch (error) {
+    next(createError(500));
+  }
+};
+
 exports.updateCatdata = async (req, res, next) => {
   try {
     const { cat_id } = req.params;
     const cat = await Cat.findByIdAndUpdate(
       { _id:cat_id }, 
       req.body, 
-      { new: true }
+      { new: true },
     );
+
     res.json({ 
-      message: 'ok', 
+      result: 'ok', 
       cat,
     });
   } catch (error) {
@@ -136,7 +120,7 @@ exports.deleteCat = async (req, res, next) => {
   
     const user = await User.findById({ _id: founder });
     const newCat = user.cats.filter((cat) => cat.toString() !== _id);
-    const ddd = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       { _id: founder }, 
       { cats: newCat }, 
       { new: true }
@@ -178,14 +162,14 @@ exports.deleteComment = async (req, res, next) => {
       (objId) => objId.toString() !== commentId
     );
 
-    const newCat = await Cat.findByIdAndUpdate(
+    const kitty = await Cat.findByIdAndUpdate(
       { _id: catId}, 
       { comments: newComments}, 
-      { new: true}
+      { new: true},
     );
   
     await Comment.findByIdAndDelete({ _id: commentId});
-    res.json({ result: 'ok', newCat, comment: commentId });
+    res.json({ result: 'ok', kitty, comment: commentId });
   } catch (error) {
     next(createError(500));
   }

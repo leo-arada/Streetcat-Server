@@ -4,9 +4,8 @@ const User = require('../../models/User');
 
 exports.sendMyCatData = async (req, res, next) => {
   try {
-    const  { id } = req.params;
+    const { id } = req.params;
     const user = await User.findById(id).populate('cats');
-    console.log(user)
     res.json({ result: 'ok', cats: user.cats});
   } catch (error) {
     next(createError(500));
