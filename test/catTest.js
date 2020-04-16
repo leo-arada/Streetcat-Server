@@ -16,7 +16,21 @@ const token = jwt.sign(
   { expiresIn: '3h' }
 );
 
-describe.skip('cat GET', function() {
+const addCatData = {
+  'Content-Type': 'multipart/form-data',
+  accessibility: '상', 
+  description: '귀엽냥',
+  friendliness: '상',
+  id: '5e981ab11fd9c8081872ecf6',
+  latitude : 300,
+  longitude: 300,
+  name: '발견했냥',
+  time: '2011-05-01', 
+};
+
+const filepath = `${__dirname}/cat.jpg`;
+
+describe('cat GET', function() {
   const login = '/auth/login';
   const cat = '/cat';
   const testUser = {
@@ -36,14 +50,11 @@ describe.skip('cat GET', function() {
     });
   });
 
-  after(function(done) {
-    User.findOneAndDelete({ name: testUser.name }, (err, user) => {
-      done();
-    });
+  after(async () => {
+    await User.findOneAndDelete({ name: testUser.name });
   });
 
   it ('Wrong token should give error result ', function(done) {
-    this.timeout(5000);
     request(app)
       .get(cat)
       .set('Authorization', `Bearer ${fakeToken}`)
@@ -55,7 +66,6 @@ describe.skip('cat GET', function() {
   });
 
   it ('Valid token should give 200 status ', function(done) {
-    this.timeout(5000);
     request(app)
       .get(cat)
       .set('Authorization', `Bearer ${token}`)
@@ -67,8 +77,33 @@ describe.skip('cat GET', function() {
   });
 });
 
-describe.skip('/:cat_id PUT', function() {
-  const catId = '5e957faa4e2a3e32a0f80556';
+describe('cat POST', function() {
+ 
+
+  after(async () => {
+    await User.findByIdAndUpdate({ _id: addCatData.id }, { cats: [] });
+  });
+ 
+  it ('Should add a new cat', function(done) {
+    this.timeout(2000)
+    request(app)
+      .post(`/cat`)
+        .set('Authorization', `Bearer ${token}`)
+        .field(addCatData)
+        .attach('image', filepath, 'testImage')
+        .expect(200)
+        .end(async (err, res) => {
+            const { result } = res.body;
+            expect(result).to.equal('ok');
+            const { cats } = await User.findById({ _id: addCatData.id }).populate('cats');
+            expect(cats[0].name).to.equal('발견했냥');
+            await Cat.findByIdAndDelete({ _id: cats[0]._id });
+            done();
+          });
+        });
+});
+
+describe('/:cat_id PUT', function() {
   const newCat = {
     name: '테스트냥',
     accessibility: '상',
@@ -77,8 +112,29 @@ describe.skip('/:cat_id PUT', function() {
     location: [37.506457, 127.058746],
   };
 
+  let catId;
+
+  before(function(done) {
+    request(app)
+    .post(`/cat`)
+      .set('Authorization', `Bearer ${token}`)
+      .field(addCatData)
+      .attach('image', filepath, 'testImage')
+      .expect(200)
+      .end(async (err, res) => {
+          const { cats } = await User.findById({ _id: addCatData.id }).populate('cats');
+          catId = cats[0]._id;
+          done();
+        });
+  });
+
+  after(async() => {
+    await Cat.findByIdAndDelete({ _id: catId });
+    await User.findByIdAndUpdate({ _id: addCatData.id }, { cats: [] });
+  });
+
+
   it ('Cat information should be modified ', function(done) {
-    this.timeout(10000)
     request(app)
       .put(`/cat/${catId}`)
       .set('Authorization', `Bearer ${token}`)

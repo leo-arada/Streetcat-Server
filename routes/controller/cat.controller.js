@@ -48,14 +48,14 @@ exports.registerCat = async (req, res, next) => {
     if (err) {
       next(createError(500));
     }
-
+    
     const image = data.Location;
     cat.image = image;
     const catAndUser = await savePhoto(cat);
     const [newCat, user] = catAndUser;
     
     res.json({ 
-      message: 'ok', 
+      result: 'ok', 
       user: {
         facebookId: user.facebookId,
         name: user.name,

@@ -22,7 +22,7 @@ exports.logIn = async (req, res, next) => {
         mongoId: user.id,
       },
       cats,
-      token,
+      accessToken: token,
     });
   } catch (error) {
     next(createError(500));
