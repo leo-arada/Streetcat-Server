@@ -28,7 +28,10 @@ exports.logIn = async (req, res, next) => {
       cats,
       accessToken: token,
     });
+    console.log('last line')
   } catch (error) {
+    console.log('err')
     next(createError(500));
   }
+  console.log('outside')
 };
