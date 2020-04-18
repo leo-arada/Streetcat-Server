@@ -148,11 +148,12 @@ describe('/:cat_id PUT', function() {
         expect(cat.friendliness).to.equal('상');
         expect(cat.description).to.equal('오늘뭐하냥');
         done();
+
       });
   });
 });
 
-describe.skip('/:cat_id/comment GET', function() {
+describe('/:cat_id/comment GET', function() {
   const catId = '5e9596980170a80a58667a17';
   let commentLength;
   Cat.findById({ _id: catId }, (err, cat) => {
@@ -174,7 +175,7 @@ describe.skip('/:cat_id/comment GET', function() {
   });
 });
 
-describe.skip('/:cat_id/comment DELETE', function() {
+describe('/:cat_id/comment DELETE', function() {
   const data = {
     catId: '5e9596980170a80a58667a17',
     commentId: '',
@@ -211,7 +212,7 @@ describe.skip('/:cat_id/comment DELETE', function() {
   });
   
 
-  it ('Should get 200 status for esponse and delete a comment', function(done) {
+  it ('Should get 200 status for response and delete a comment', function(done) {
     this.timeout(10000)
     request(app)
       .delete(`/cat/${data.catId}/comment/${data.commentId}`)
@@ -227,7 +228,7 @@ describe.skip('/:cat_id/comment DELETE', function() {
   });
 });
 
-describe.skip('/:cat_id/comment POST', function() {
+describe('/:cat_id/comment POST', function() {
   const catId = '5e9596980170a80a58667a17';
   const data = {
     content: 'I wnana get this cat',
@@ -247,7 +248,7 @@ describe.skip('/:cat_id/comment POST', function() {
   });
   
 
-  it ('Should get 200 status for esponse and add a comment', function(done) {
+  it ('Should get 200 status for response and add a comment', function(done) {
     this.timeout(10000)
     request(app)
       .post(`/cat/${catId}/comment`)
