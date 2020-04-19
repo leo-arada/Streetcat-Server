@@ -3,7 +3,7 @@ const app = require('../app');
 const request = require('supertest');
 const User = require('../models/User');
 
-describe.skip('auth', function() {
+describe('auth', function() {
   const login = '/auth/login';
   const testUser = {
     facebookId : 'test',

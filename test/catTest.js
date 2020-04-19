@@ -78,14 +78,12 @@ describe('cat GET', function() {
 });
 
 describe('cat POST', function() {
- 
-
   after(async () => {
     await User.findByIdAndUpdate({ _id: addCatData.id }, { cats: [] });
   });
  
   it ('Should add a new cat', function(done) {
-    this.timeout(2000)
+    this.timeout(4000)
     request(app)
       .post(`/cat`)
         .set('Authorization', `Bearer ${token}`)

@@ -4,6 +4,7 @@ const router = express.Router();
 const { verifyToken } = require('./middlewares/authentication');
 
 router.get('/', verifyToken, catController.getHandler);
+router.get('/starcats', verifyToken, catController.getHandler);
 router.get('/:cat_id/comment', verifyToken, catController.findComments);
 router.post('/', catController.registerCat);
 router.post('/:cat_id/like', verifyToken, catController.increaseLike);

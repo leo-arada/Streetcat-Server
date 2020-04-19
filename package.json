@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node app.js",
     "server": "nodemon app.js",
-    "test": "mocha"
+    "test": "mocha --exit"
   },
   "dependencies": {
     "aws-sdk": "^2.654.0",

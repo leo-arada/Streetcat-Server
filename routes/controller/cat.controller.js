@@ -67,8 +67,9 @@ exports.registerCat = async (req, res, next) => {
   });
 };
 
-exports.getHandler = (req, res, next) => {
-  res.json({ result: 'ok' });
+exports.getHandler = async (req, res, next) => {
+  const cats = await Cat.find({});
+  res.json({ result: 'ok', cats });
 };
 
 exports.increaseLike = async (req, res, next) => {
