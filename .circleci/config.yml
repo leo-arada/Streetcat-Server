@@ -26,9 +26,9 @@ jobs:
                 name: Deploy to env
                 command: |
                   if [ "${CIRCLE_BRANCH}" == "master" ]; then
-                      eb deploy Hodduck-env
+                      eb deploy
                   else
-                      eb deploy Hodduck-env
+                      eb deploy
                   fi
 
 workflows:
